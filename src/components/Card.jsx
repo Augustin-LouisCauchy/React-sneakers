@@ -1,4 +1,4 @@
-function Card () {
+function Card ({}) {
     return (
         <div className="card">
         <div className="favorite">
