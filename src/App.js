@@ -1,9 +1,10 @@
 import React from "react";
 import axios from "axios";
-import Card from "./components/Card";
 import Header from "./components/Header";
 import Drawer from "./components/Drawer";
-import {Route, Routes} from 'react-router-dom'
+import { Route, Routes } from "react-router-dom";
+import Home from "./pages/Home";
+import Favorites from "./pages/Favorites";
 
 function App() {
   const [items, setItems] = React.useState([]);
@@ -13,12 +14,21 @@ function App() {
   const [cartOpened, setCartOpened] = React.useState(false);
 
   React.useEffect(() => {
-    axios.get("https://65a7f5bf94c2c5762da80808.mockapi.io/items").then((res) => {
+    axios
+      .get("https://65a7f5bf94c2c5762da80808.mockapi.io/items")
+      .then((res) => {
         setItems(res.data);
       });
-      axios.get("https://65a7f5bf94c2c5762da80808.mockapi.io/cart").then((res) => {
+    axios
+      .get("https://65a7f5bf94c2c5762da80808.mockapi.io/cart")
+      .then((res) => {
         setCartItems(res.data);
-      });  
+      });
+      axios
+      .get("https://my-json-server.typicode.com/typicode/demo/posts")
+      .then((res) => {
+        setFavorites(res.data);
+      });
   }, []);
 
   const onAddToCart = (obj) => {
@@ -29,72 +39,49 @@ function App() {
   const onRemoveItem = (id) => {
     axios.delete(`https://65a7f5bf94c2c5762da80808.mockapi.io/cart/${id}`);
     setCartItems((prev) => prev.filter((item) => item.id !== id));
-  }
+  };
 
   const onAddToFavorite = (obj) => {
     axios.post("https://my-json-server.typicode.com/typicode/demo/posts", obj);
-    setFavorites((prev) => [...prev, obj])
-  } 
+    setFavorites((prev) => [...prev, obj]);
+  };
 
   const onChangeSearchInput = (event) => {
     setSearchValue(event.target.value);
   };
 
-
   return (
     <div className="wrapper clear">
       {cartOpened && (
-        <Drawer items={cartItems} onClose={() => setCartOpened(false)}  onRemove = {onRemoveItem}/>
+        <Drawer
+          items={cartItems}
+          onClose={() => setCartOpened(false)}
+          onRemove={onRemoveItem}
+        />
       )}
-      
-    
-    <Routes>
-          <Route exact path='/favorites' element={<Header onClickCart={() => setCartOpened(true)}/>}>
-            </Route>
-          </Routes>
-        <div className="content p-45">
-        <div className="d-flex align-center justify-between mb-40">
-          <h1>
-            {searchValue
-              ? `Поиск по запросу: "${searchValue}"`
-              : "Все кроссовки"}
-          </h1>
-          <div className="search-block d-flex">
-            <img src="/img/search.svg" alt="Search" />
-            {searchValue && (
-              <img
-                onClick={() => setSearchValue("")}
-                className="clear cu-p"
-                src="/img/btn-remove.svg"
-                alt="clear"
-              />
-            )}
-            <input
-              onChange={onChangeSearchInput}
-              value={searchValue}
-              placeholder="Поиск..."
+
+      <Header onClickCart={() => setCartOpened(true)} />
+      <Routes>
+        <Route
+          exact
+          path="/"
+          element={
+            <Home
+              items={items}
+              searchValue={searchValue}
+              setSearchValue={setSearchValue}
+              onChangeSearchInput={onChangeSearchInput}
+              onAddToFavorite={onAddToFavorite}
+              onAddToCart={onAddToCart}
             />
-          </div>
-        </div>
-        <div className="d-flex flex-wrap justify-between">
-          {items
-            .filter((item) =>
-              item.title.toLowerCase().includes(searchValue.toLowerCase())
-            )
-            .map((item, index) => (
-              <Card
-                key={index}
-                title={item.title}
-                price={item.price}
-                imgUrl={item.imgUrl}
-                onFavorite={(obj) => onAddToFavorite(obj)}
-                onPlus={(obj) => onAddToCart(obj)}
-              />
-            ))}
-        </div>
-      </div>
+          }
+        ></Route>
+      </Routes>
+
+      <Routes>
+        <Route exact path="/favorites" element={<Favorites items={favorites} />}></Route>
+      </Routes>
     </div>
-    
   );
 }
 
