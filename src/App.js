@@ -25,15 +25,21 @@ function App() {
         setCartItems(res.data);
       });
       axios
-      .get("https://my-json-server.typicode.com/typicode/demo/posts")
+      .get("https://65ba75c2b4d53c066552f65b.mockapi.io/favorite")
       .then((res) => {
         setFavorites(res.data);
       });
   }, []);
 
   const onAddToCart = (obj) => {
-    axios.post("https://65a7f5bf94c2c5762da80808.mockapi.io/cart", obj);
-    setCartItems((prev) => [...prev, obj]);
+    console.log(obj)
+    if(cartItems.find((item) => Number(item.id) === Number(obj.id))) {
+      setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+    } else {
+      axios.post("https://65a7f5bf94c2c5762da80808.mockapi.io/cart", obj);
+      setCartItems((prev) => [...prev, obj]);
+    }
+    
   };
 
   const onRemoveItem = (id) => {
@@ -41,9 +47,17 @@ function App() {
     setCartItems((prev) => prev.filter((item) => item.id !== id));
   };
 
-  const onAddToFavorite = (obj) => {
-    axios.post("https://my-json-server.typicode.com/typicode/demo/posts", obj);
-    setFavorites((prev) => [...prev, obj]);
+  const onAddToFavorite = async (obj) => {
+   try {
+     if(favorites.find((favObj) => favObj.id === obj.id)) {
+       axios.delete(`https://65ba75c2b4d53c066552f65b.mockapi.io/favorite/${obj.id}`);
+     } else {
+       const { data } = await axios.post("https://65ba75c2b4d53c066552f65b.mockapi.io/favorite", obj)
+       setFavorites((prev) => [...prev, data]);
+     }
+   } catch (error) {
+      alert("Не удалось добавить в фавориты")
+   }
   };
 
   const onChangeSearchInput = (event) => {
@@ -79,7 +93,7 @@ function App() {
       </Routes>
 
       <Routes>
-        <Route exact path="/favorites" element={<Favorites items={favorites} />}></Route>
+        <Route exact path="/favorites" element={<Favorites items={favorites} onAddtoFavorite={onAddToFavorite}/>}></Route>
       </Routes>
     </div>
   );
