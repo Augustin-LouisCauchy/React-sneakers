@@ -1,24 +1,53 @@
 import styles from "./Card.module.scss";
 import React from "react";
+import ContentLoader from "react-content-loader";
 
-function Card({ id, onFavorite, title, imgUrl, price, onPlus, favorited = false}) {
-  const [isAdded, setIsAdded] = React.useState(false);
+function Card({
+  id,
+  onFavorite,
+  title,
+  imgUrl,
+  price,
+  onPlus,
+  favorited = false,
+  added = false,
+  loading = false
+}) {
+  const [isAdded, setIsAdded] = React.useState(added);
   const [isFavorite, setIsFavorite] = React.useState(favorited);
 
   const onClickPlus = () => {
-    onPlus({id, title, imgUrl, price});
+    onPlus({ id, title, imgUrl, price });
     setIsAdded(!isAdded);
   };
 
   const onClickFavorite = () => {
-    onFavorite({id, title, imgUrl, price})
-    setIsFavorite(!isFavorite)
-  }
+    onFavorite({ id, title, imgUrl, price });
+    setIsFavorite(!isFavorite);
+  };
 
   return (
     <div className={styles.card}>
-      <div className={styles.favorite} onClick={onClickFavorite}>
-        <img src={isFavorite ? "/img/heart.svg" : "/img/pre-like.svg"} alt="unliked" />
+      {
+        loading ? (
+          <ContentLoader
+          speed={2}
+          width={155}
+          height={250}
+          viewBox="0 0 155 265"
+          backgroundColor="#f3f3f3"
+          foregroundColor="#ecebeb">
+          <rect x="1" y="0" rx="10" ry="10" width="155" height="155" />
+          <rect x="0" y="167" rx="5" ry="5" width="155" height="15" />
+          <rect x="0" y="187" rx="5" ry="5" width="100" height="15" />
+          <rect x="1" y="234" rx="5" ry="5" width="80" height="25" />
+          <rect x="124" y="230" rx="10" ry="10" width="32" height="32" />
+        </ContentLoader> ) : ( 
+        <> <div className={styles.favorite} onClick={onClickFavorite}>
+        <img
+          src={isFavorite ? "/img/heart.svg" : "/img/pre-like.svg"}
+          alt="unliked"
+        />
       </div>
       <img width={133} height={112} src={imgUrl} alt="" />
       <h5>{title}</h5>
@@ -33,7 +62,9 @@ function Card({ id, onFavorite, title, imgUrl, price, onPlus, favorited = false}
           src={isAdded ? "/img/btn-checked.svg" : "/img/btn-plus.svg"}
           alt="plus"
         />
-      </div>
+      </div> 
+      </>
+      )}
     </div>
   );
 }

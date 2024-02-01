@@ -12,29 +12,26 @@ function App() {
   const [favorites, setFavorites] = React.useState([]);
   const [searchValue, setSearchValue] = React.useState("");
   const [cartOpened, setCartOpened] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
-    axios
-      .get("https://65a7f5bf94c2c5762da80808.mockapi.io/items")
-      .then((res) => {
-        setItems(res.data);
-      });
-    axios
-      .get("https://65a7f5bf94c2c5762da80808.mockapi.io/cart")
-      .then((res) => {
-        setCartItems(res.data);
-      });
-      axios
-      .get("https://65ba75c2b4d53c066552f65b.mockapi.io/favorite")
-      .then((res) => {
-        setFavorites(res.data);
-      });
+    async function fetchData() {
+     const itemsResponse = await axios.get("https://65a7f5bf94c2c5762da80808.mockapi.io/items");
+     const cartResponse = await axios.get("https://65a7f5bf94c2c5762da80808.mockapi.io/cart");
+     const favoriteResponse = await axios.get("https://65ba75c2b4d53c066552f65b.mockapi.io/favorite");
+      
+      setCartItems(cartResponse.data);
+      setFavorites(favoriteResponse.data);
+      setItems(itemsResponse.data)      
+    }
+    fetchData()
   }, []);
 
   const onAddToCart = (obj) => {
     console.log(obj)
     if(cartItems.find((item) => Number(item.id) === Number(obj.id))) {
-      setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)))
+      axios.delete(`https://65a7f5bf94c2c5762da80808.mockapi.io/cart/${obj.id}`);
+      setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(obj.id)));
     } else {
       axios.post("https://65a7f5bf94c2c5762da80808.mockapi.io/cart", obj);
       setCartItems((prev) => [...prev, obj]);
@@ -82,6 +79,7 @@ function App() {
           element={
             <Home
               items={items}
+              cartItems={cartItems  }
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               onChangeSearchInput={onChangeSearchInput}
