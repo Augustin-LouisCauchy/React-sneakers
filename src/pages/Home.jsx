@@ -7,23 +7,23 @@ function Home({
   onChangeSearchInput,
   onAddToFavorite,
   onAddToCart,
-  cartItems,
+  //cartItems,
+  isLoading,
 }) {
   const renderItems = () => {
-    return items
-      .filter((item) =>
-        item.title.toLowerCase().includes(searchValue.toLowerCase())
-      )
-      .map((item, index) => (
-        <Card
-          key={index}
-          onFavorite={(obj) => onAddToFavorite(obj)}
-          onPlus={(obj) => onAddToCart(obj)}
-          added={cartItems.some((obj) => Number(obj.id) === Number(item.id))}
-          loading={false}
-          {...item}
-        />
-      ));
+    const filteredItems = items.filter((item) =>
+      item.title.toLowerCase().includes(searchValue.toLowerCase())
+    );
+    return (isLoading ? [...Array(11)] : filteredItems).map((item, index) => (
+      <Card
+        key={index}
+        onFavorite={(obj) => onAddToFavorite(obj)}
+        onPlus={(obj) => onAddToCart(obj)}
+        //added={cartItems.some((obj) => Number(obj.id) === Number(item.id))}
+        loading={isLoading}
+        {...item}
+      />
+    ));
   };
   return (
     <div className="content p-45">
