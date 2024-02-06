@@ -5,6 +5,7 @@ import Drawer from "./components/Drawer";
 import { Route, Routes } from "react-router-dom";
 import Home from "./pages/Home";
 import Favorites from "./pages/Favorites";
+import AppContext from "./components/context";
 
 function App() {
   const [items, setItems] = React.useState([]);
@@ -21,7 +22,7 @@ function App() {
      const favoriteResponse = await axios.get("https://65ba75c2b4d53c066552f65b.mockapi.io/favorite");
       
       setIsLoading(false);
-
+      
       setCartItems(cartResponse.data);
       setFavorites(favoriteResponse.data);
       setItems(itemsResponse.data)      
@@ -43,7 +44,7 @@ function App() {
 
   const onRemoveItem = (id) => {
     axios.delete(`https://65a7f5bf94c2c5762da80808.mockapi.io/cart/${id}`);
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
+    setCartItems((prev) => prev.filter((item) => Number(item.id) !== Number(id)));
   };
 
   const onAddToFavorite = async (obj) => {
@@ -63,7 +64,12 @@ function App() {
     setSearchValue(event.target.value);
   };
 
+  const isItemAdded = (id) => {
+    return cartItems.some((obj) => Number(obj.id) === Number(id))
+  }
+
   return (
+    <AppContext.Provider value={{items, cartItems, favorites, isItemAdded, onAddToFavorite}}>
     <div className="wrapper clear">
       {cartOpened && (
         <Drawer
@@ -81,7 +87,7 @@ function App() {
           element={
             <Home
               items={items}
-              cartItems={cartItems}
+              cartItems={cartItems  }
               searchValue={searchValue}
               setSearchValue={setSearchValue}
               onChangeSearchInput={onChangeSearchInput}
@@ -95,9 +101,10 @@ function App() {
       </Routes>
 
       <Routes>
-        <Route exact path="/favorites" element={<Favorites items={favorites} onAddtoFavorite={onAddToFavorite}/>}></Route>
+        <Route exact path="/favorites" element={<Favorites/>}></Route>
       </Routes>
     </div>
+    </AppContext.Provider>
   );
 }
 
