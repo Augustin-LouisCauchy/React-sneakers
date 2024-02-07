@@ -121,6 +121,7 @@ header {
     .greenButton {
       width: 245px;
       position: relative;
+
       &:hover {
         img {
           transform: translateX(-10px);
@@ -157,6 +158,11 @@ header {
 
   .greenButton {
     position: relative;
+
+    &:disabled {
+      background-color: #bebebe;
+      cursor: default;
+    }
 
     &:hover {
       img {
